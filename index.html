@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1e40af">
+<link rel="manifest" href="manifest.json">
+<title>Reclamos Vecinales — San Pedro</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f4ff;min-height:100vh;}
+.header{background:#1e40af;color:white;padding:16px 20px;text-align:center;}
+.header h1{font-size:20px;font-weight:700;}
+.header p{font-size:13px;opacity:.85;margin-top:4px;}
+.container{max-width:480px;margin:0 auto;padding:16px;}
+.card{background:white;border-radius:16px;padding:20px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,.08);}
+.card h2{font-size:16px;font-weight:700;color:#1e40af;margin-bottom:16px;}
+label{display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:6px;}
+select,textarea,input[type=text]{width:100%;padding:10px 14px;border:1.5px solid #d1d5db;border-radius:10px;font-size:14px;font-family:inherit;outline:none;transition:border-color .2s;}
+select:focus,textarea:focus,input:focus{border-color:#1e40af;}
+.form-group{margin-bottom:16px;}
+.foto-area{border:2px dashed #93c5fd;border-radius:12px;padding:20px;text-align:center;cursor:pointer;background:#eff6ff;transition:background .2s;}
+.foto-area:hover{background:#dbeafe;}
+.foto-area p{font-size:13px;color:#3b82f6;margin-top:8px;}
+.foto-preview{width:100%;border-radius:10px;margin-top:12px;display:none;}
+.gps-badge{display:inline-flex;align-items:center;gap:6px;background:#dcfce7;color:#166534;font-size:12px;font-weight:600;padding:6px 12px;border-radius:99px;margin-top:8px;}
+.gps-badge.error{background:#fee2e2;color:#991b1b;}
+.btn-enviar{width:100%;background:#1e40af;color:white;border:none;padding:14px;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;transition:background .2s;}
+.btn-enviar:hover{background:#1d3a9e;}
+.btn-enviar:disabled{background:#93c5fd;cursor:not-allowed;}
+.success-msg{display:none;background:#dcfce7;border:1.5px solid #86efac;border-radius:12px;padding:16px;text-align:center;color:#166534;font-weight:600;}
+.categorias{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px;}
+.cat-btn{border:1.5px solid #d1d5db;background:white;border-radius:10px;padding:10px 8px;font-size:12px;font-weight:600;cursor:pointer;text-align:center;transition:all .2s;color:#374151;}
+.cat-btn.active{border-color:#1e40af;background:#eff6ff;color:#1e40af;}
+.spinner{display:none;text-align:center;padding:8px;color:#6b7280;font-size:13px;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>📍 Reclamos Vecinales</h1>
+  <p>San Pedro, Buenos Aires — Reportá problemas en tu barrio</p>
+</div>
+
+<div class="container">
+
+  <div class="card">
+    <h2>📸 Categoría del problema</h2>
+    <div class="categorias">
+      <button class="cat-btn" onclick="selCat(this,'Pozo en la calle')">🕳️ Pozo en la calle</button>
+      <button class="cat-btn" onclick="selCat(this,'Cloaca desbordada')">💧 Cloaca desbordada</button>
+      <button class="cat-btn" onclick="selCat(this,'Falta de agua')">🚰 Falta de agua</button>
+      <button class="cat-btn" onclick="selCat(this,'Boca de tormenta')">🌧️ Boca de tormenta</button>
+      <button class="cat-btn" onclick="selCat(this,'Alumbrado')">💡 Alumbrado</button>
+      <button class="cat-btn" onclick="selCat(this,'Bacheo')">🛣️ Bacheo</button>
+      <button class="cat-btn" onclick="selCat(this,'Basura')">🗑️ Basura</button>
+      <button class="cat-btn" onclick="selCat(this,'Otro')">❓ Otro</button>
+    </div>
+    <input type="hidden" id="categoria" value="">
+  </div>
+
+  <div class="card">
+    <h2>📷 Foto del problema</h2>
+    <div class="foto-area" onclick="document.getElementById('fotoInput').click()">
+      <div style="font-size:40px;">📷</div>
+      <p>Tocá para sacar una foto o elegir de la galería</p>
+      <input type="file" id="fotoInput" accept="image/*" capture="environment" style="display:none" onchange="mostrarFoto(this)">
+    </div>
+    <img id="fotoPreview" class="foto-preview" alt="Vista previa">
+  </div>
+
+  <div class="card">
+    <h2>📍 Ubicación y descripción</h2>
+    <div class="form-group">
+      <label>Dirección o referencia del lugar *</label>
+      <input type="text" id="direccion" placeholder="Ej: Mitre y Belgrano, frente al kiosco">
+    </div>
+    <div class="form-group">
+      <label>GPS automático</label>
+      <div id="gpsBadge" class="gps-badge error">⏳ Detectando ubicación...</div>
+    </div>
+    <div class="form-group">
+      <label>Descripción del problema *</label>
+      <textarea id="descripcion" rows="3" placeholder="Describí brevemente el problema..."></textarea>
+    </div>
+    <div class="form-group">
+      <label>Tu nombre (opcional)</label>
+      <input type="text" id="nombre" placeholder="Ej: María González">
+    </div>
+    <div class="form-group">
+      <label>Tu celular (opcional)</label>
+      <input type="text" id="celular" placeholder="Ej: 3329 123456">
+    </div>
+  </div>
+
+  <button class="btn-enviar" id="btnEnviar" onclick="enviarReclamo()">📤 Enviar Reclamo</button>
+  <div class="spinner" id="spinner">⏳ Enviando tu reclamo...</div>
+  <div class="success-msg" id="successMsg">
+    ✅ ¡Reclamo enviado con éxito!<br>
+    <span style="font-size:13px;font-weight:400;">El concejal fue notificado. Gracias por reportar.</span>
+  </div>
+
+</div>
+
+<script>
+let lat = null, lng = null, categoriaSeleccionada = '', fotoBase64 = '';
+
+// GPS
+navigator.geolocation.getCurrentPosition(
+  pos => {
+    lat = pos.coords.latitude.toFixed(6);
+    lng = pos.coords.longitude.toFixed(6);
+    document.getElementById('gpsBadge').className = 'gps-badge';
+    document.getElementById('gpsBadge').textContent = '✅ Ubicación detectada';
+  },
+  err => {
+    document.getElementById('gpsBadge').className = 'gps-badge error';
+    document.getElementById('gpsBadge').textContent = '❌ GPS no disponible — ingresá la dirección';
+  }
+);
+
+function selCat(btn, cat) {
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  categoriaSeleccionada = cat;
+  document.getElementById('categoria').value = cat;
+}
+
+function mostrarFoto(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('fotoPreview').src = e.target.result;
+    document.getElementById('fotoPreview').style.display = 'block';
+    fotoBase64 = e.target.result.split(',')[1];
+  };
+  reader.readAsDataURL(file);
+}
+
+async function enviarReclamo() {
+  const direccion = document.getElementById('direccion').value.trim();
+  const descripcion = document.getElementById('descripcion').value.trim();
+
+  if (!categoriaSeleccionada) { alert('Por favor seleccioná una categoría.'); return; }
+  if (!direccion) { alert('Por favor ingresá la dirección del problema.'); return; }
+  if (!descripcion) { alert('Por favor describí el problema.'); return; }
+  if (!fotoBase64) { alert('Por favor sacá una foto del problema.'); return; }
+
+  document.getElementById('btnEnviar').disabled = true;
+  document.getElementById('spinner').style.display = 'block';
+
+  const ahora = new Date();
+  const datos = {
+    id: 'R' + Date.now().toString().slice(-6),
+    fecha: ahora.toLocaleDateString('es-AR'),
+    hora: ahora.toLocaleTimeString('es-AR'),
+    categoria: categoriaSeleccionada,
+    descripcion: descripcion,
+    direccion: direccion,
+    latitud: lat || 'No disponible',
+    longitud: lng || 'No disponible',
+    nombre: document.getElementById('nombre').value || 'Anónimo',
+    celular: document.getElementById('celular').value || 'No informado',
+    foto: fotoBase64
+  };
+
+  try {
+    const GAS_URL = 'TU_URL_DE_APPS_SCRIPT_AQUI';
+    const res = await fetch(GAS_URL, {
+      method: 'POST',
+      body: JSON.stringify(datos)
+    });
+    const result = await res.json();
+    if (result.success) {
+      document.getElementById('spinner').style.display = 'none';
+      document.getElementById('successMsg').style.display = 'block';
+      document.getElementById('btnEnviar').style.display = 'none';
+    }
+  } catch(e) {
+    document.getElementById('spinner').style.display = 'none';
+    document.getElementById('btnEnviar').disabled = false;
+    alert('Error al enviar. Verificá tu conexión e intentá de nuevo.');
+  }
+}
+</script>
+</body>
+</html>
