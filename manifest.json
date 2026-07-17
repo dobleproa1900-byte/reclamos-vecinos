@@ -1,11 +1,11 @@
 {
   "name": "Reclamos Vecinales San Pedro",
   "short_name": "Reclamos",
-  "description": "Reportá problemas en tu barrio",
+  "description": "Reportá problemas en tu barrio con foto y GPS",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#f0f4ff",
-  "theme_color": "#1e40af",
+  "background_color": "#0b0a1a",
+  "theme_color": "#0b0a1a",
   "icons": [
     {
       "src": "https://cdn-icons-png.flaticon.com/512/684/684908.png",

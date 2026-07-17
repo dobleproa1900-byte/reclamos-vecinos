@@ -2,8 +2,11 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#0b0a1a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="description" content="Reportá problemas del barrio en San Pedro con foto y ubicación GPS.">
 <link rel="manifest" href="manifest.json">
 <title>Reclamos Vecinales — San Pedro</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -23,9 +26,13 @@
   --muted:#a3a1c4;
   --field:rgba(255,255,255,.04);
   --ok-bg:rgba(34,211,238,.12);--ok-ink:#67e8f9;--ok-line:rgba(34,211,238,.4);
-  --err-bg:rgba(248,113,113,.12);--err-ink:#fca5a5;
+  --err-bg:rgba(248,113,113,.14);--err-ink:#fca5a5;--err-line:rgba(248,113,113,.4);
+  --safe-b:env(safe-area-inset-bottom,0px);
+  --safe-t:env(safe-area-inset-top,0px);
+  --cta-h:88px;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html{scroll-behavior:smooth;}
 body{
   font-family:'Plus Jakarta Sans','Segoe UI',system-ui,-apple-system,sans-serif;
   color:var(--ink);
@@ -35,200 +42,404 @@ body{
     radial-gradient(700px 600px at 50% 120%,rgba(139,92,246,.14),transparent 60%),
     var(--bg);
   background-attachment:fixed;
-  min-height:100vh;-webkit-font-smoothing:antialiased;
+  min-height:100vh;min-height:100dvh;
+  -webkit-font-smoothing:antialiased;
+  padding-bottom:calc(var(--cta-h) + var(--safe-b));
 }
 @keyframes riseIn{
-  from{opacity:0;transform:translateY(22px) scale(.98);}
-  to{opacity:1;transform:translateY(0) scale(1);}
-}
-@keyframes fadeDown{
-  from{opacity:0;transform:translateY(-14px);}
+  from{opacity:0;transform:translateY(18px);}
   to{opacity:1;transform:translateY(0);}
 }
+@keyframes fadeDown{
+  from{opacity:0;transform:translateY(-12px);}
+  to{opacity:1;transform:translateY(0);}
+}
+@keyframes toastIn{
+  from{opacity:0;transform:translateY(12px) scale(.96);}
+  to{opacity:1;transform:translateY(0) scale(1);}
+}
 .header{
-  position:relative;overflow:hidden;color:#fff;padding:36px 20px 32px;text-align:center;
+  position:relative;overflow:hidden;color:#fff;
+  padding:calc(22px + var(--safe-t)) 20px 26px;text-align:center;
   background:linear-gradient(135deg,var(--violet) 0%,var(--violet-2) 45%,var(--cyan-2) 130%);
-  border-radius:0 0 30px 30px;box-shadow:0 18px 50px -18px rgba(139,92,246,.7);
-  animation:fadeDown .6s cubic-bezier(.16,1,.3,1) both;
+  border-radius:0 0 28px 28px;box-shadow:0 18px 50px -18px rgba(139,92,246,.7);
+  animation:fadeDown .55s cubic-bezier(.16,1,.3,1) both;
 }
 .header::after{
   content:"";position:absolute;inset:0;pointer-events:none;
   background:radial-gradient(420px 200px at 80% -20%,rgba(255,255,255,.35),transparent 70%);
 }
-.header h1{font-size:24px;font-weight:800;letter-spacing:-.02em;position:relative;text-shadow:0 2px 12px rgba(0,0,0,.2);}
-.header p{font-size:13.5px;opacity:.95;margin-top:6px;font-weight:500;position:relative;}
-.container{max-width:480px;margin:0 auto;padding:20px 16px 40px;}
+.brand-chip{
+  position:relative;display:inline-flex;align-items:center;gap:6px;
+  background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.22);
+  padding:5px 12px;border-radius:999px;font-size:11px;font-weight:700;
+  letter-spacing:.04em;text-transform:uppercase;margin-bottom:10px;
+}
+.header h1{font-size:clamp(1.35rem,5vw,1.6rem);font-weight:800;letter-spacing:-.02em;position:relative;text-shadow:0 2px 12px rgba(0,0,0,.2);}
+.header p{font-size:13.5px;opacity:.95;margin-top:6px;font-weight:500;position:relative;line-height:1.4;max-width:28ch;margin-left:auto;margin-right:auto;}
+.steps{
+  position:relative;display:flex;justify-content:center;gap:6px;margin-top:14px;flex-wrap:wrap;
+}
+.step-pill{
+  font-size:11px;font-weight:700;padding:5px 10px;border-radius:999px;
+  background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.9);
+}
+.container{max-width:480px;margin:0 auto;padding:18px 16px 12px;}
 .card{
   background:var(--surface);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
   border:1px solid var(--border);
-  border-radius:22px;padding:22px;margin-bottom:16px;
+  border-radius:20px;padding:18px 16px;margin-bottom:14px;
   box-shadow:0 20px 40px -22px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.06);
-  animation:riseIn .65s cubic-bezier(.16,1,.3,1) both;
+  animation:riseIn .55s cubic-bezier(.16,1,.3,1) both;
+  scroll-margin-top:16px;
 }
-.card:nth-of-type(1){animation-delay:.10s;}
-.card:nth-of-type(2){animation-delay:.20s;}
-.card:nth-of-type(3){animation-delay:.30s;}
-.btn-enviar{animation:riseIn .65s cubic-bezier(.16,1,.3,1) .40s both;}
+.card:nth-of-type(1){animation-delay:.08s;}
+.card:nth-of-type(2){animation-delay:.16s;}
+.card:nth-of-type(3){animation-delay:.24s;}
+.card.is-invalid{border-color:rgba(248,113,113,.55);box-shadow:0 0 0 3px rgba(248,113,113,.12);}
 @media (prefers-reduced-motion:reduce){
-  .header,.card,.btn-enviar{animation:none;}
+  .header,.card,.toast{animation:none;}
 }
+.card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;}
 .card h2{
-  font-size:15px;font-weight:700;margin-bottom:16px;letter-spacing:-.01em;
+  font-size:14.5px;font-weight:700;letter-spacing:-.01em;margin:0;
   background:linear-gradient(90deg,#c4b5fd,#67e8f9);-webkit-background-clip:text;
   background-clip:text;-webkit-text-fill-color:transparent;
 }
+.req{font-size:11px;font-weight:700;color:#fca5a5;background:var(--err-bg);border:1px solid rgba(248,113,113,.25);padding:3px 8px;border-radius:999px;white-space:nowrap;}
+.opt{font-size:11px;font-weight:700;color:var(--muted);background:rgba(255,255,255,.04);border:1px solid var(--border);padding:3px 8px;border-radius:999px;}
 label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);margin-bottom:7px;letter-spacing:.01em;}
-select,textarea,input[type=text]{
-  width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:12px;
-  font-size:14.5px;font-family:inherit;color:var(--ink);background:var(--field);
+select,textarea,input[type=text],input[type=tel]{
+  width:100%;padding:14px 14px;border:1.5px solid var(--border);border-radius:12px;
+  font-size:16px;font-family:inherit;color:var(--ink);background:var(--field);
   outline:none;transition:border-color .2s,box-shadow .2s,background .2s;
+  -webkit-appearance:none;appearance:none;
 }
+textarea{resize:vertical;min-height:96px;line-height:1.45;}
 select::placeholder,textarea::placeholder,input::placeholder{color:#7c7aa0;}
 select:focus,textarea:focus,input:focus{border-color:var(--cyan);background:var(--surface-2);box-shadow:0 0 0 4px rgba(34,211,238,.16);}
-.form-group{margin-bottom:16px;}
+.form-group{margin-bottom:14px;}
+.form-group:last-child{margin-bottom:0;}
 .foto-area{
-  border:2px dashed rgba(139,92,246,.45);border-radius:16px;padding:24px;text-align:center;cursor:pointer;
+  border:2px dashed rgba(139,92,246,.45);border-radius:16px;padding:28px 16px;text-align:center;cursor:pointer;
   background:linear-gradient(135deg,rgba(139,92,246,.10),rgba(34,211,238,.08));transition:all .2s;
+  min-height:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;
 }
-.foto-area:hover{background:linear-gradient(135deg,rgba(139,92,246,.18),rgba(34,211,238,.14));border-color:var(--cyan);}
-.foto-area p{font-size:13px;color:#c4b5fd;margin-top:8px;font-weight:600;}
-.foto-preview{width:100%;border-radius:14px;margin-top:14px;display:none;box-shadow:0 12px 28px -12px rgba(0,0,0,.8);}
-.gps-badge{display:inline-flex;align-items:center;gap:6px;background:var(--ok-bg);color:var(--ok-ink);border:1px solid var(--ok-line);font-size:12px;font-weight:700;padding:7px 13px;border-radius:99px;margin-top:6px;}
+.foto-area:active{transform:scale(.985);}
+.foto-area.has-photo{display:none;}
+.foto-ico{font-size:36px;line-height:1;margin-bottom:8px;}
+.foto-area p{font-size:13.5px;color:#c4b5fd;font-weight:600;line-height:1.35;max-width:26ch;}
+.foto-area .hint{font-size:12px;color:var(--muted);font-weight:500;margin-top:6px;}
+.foto-preview-wrap{display:none;position:relative;margin-top:0;}
+.foto-preview-wrap.show{display:block;}
+.foto-preview{width:100%;border-radius:14px;display:block;box-shadow:0 12px 28px -12px rgba(0,0,0,.8);aspect-ratio:4/3;object-fit:cover;background:#111;}
+.foto-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;}
+.btn-ghost{
+  border:1.5px solid var(--border);background:var(--field);color:var(--ink);
+  border-radius:12px;padding:12px;font-size:13.5px;font-weight:700;font-family:inherit;cursor:pointer;
+  min-height:44px;
+}
+.btn-ghost:active{transform:scale(.98);background:var(--surface-2);}
+.gps-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.gps-badge{
+  display:inline-flex;align-items:center;gap:6px;background:var(--ok-bg);color:var(--ok-ink);
+  border:1px solid var(--ok-line);font-size:12.5px;font-weight:700;padding:9px 13px;border-radius:99px;
+  min-height:40px;
+}
 .gps-badge.error{background:var(--err-bg);color:var(--err-ink);border-color:rgba(248,113,113,.35);}
+.btn-gps{
+  border:1.5px solid var(--border);background:var(--field);color:var(--cyan);
+  border-radius:99px;padding:9px 14px;font-size:12.5px;font-weight:700;font-family:inherit;
+  cursor:pointer;min-height:40px;
+}
+.btn-gps:active{background:var(--surface-2);}
+.categorias{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.cat-btn{
+  border:1.5px solid var(--border);background:var(--field);border-radius:14px;
+  padding:14px 10px;min-height:64px;
+  font-size:12.5px;font-weight:700;font-family:inherit;cursor:pointer;text-align:center;
+  transition:border-color .18s,background .18s,color .18s,transform .12s;color:var(--muted);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;line-height:1.25;
+}
+.cat-btn .ico{font-size:20px;line-height:1;}
+.cat-btn:active{transform:scale(.97);}
+.cat-btn.active{
+  border-color:var(--cyan);
+  background:linear-gradient(135deg,rgba(139,92,246,.28),rgba(34,211,238,.22));
+  color:#fff;box-shadow:0 8px 18px -8px rgba(34,211,238,.55);
+}
+.cta-bar{
+  position:fixed;left:0;right:0;bottom:0;z-index:40;
+  padding:12px 16px calc(12px + var(--safe-b));
+  background:linear-gradient(180deg,rgba(11,10,26,0) 0%,rgba(11,10,26,.88) 28%,rgba(11,10,26,.96) 100%);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+}
+.cta-inner{max-width:480px;margin:0 auto;}
 .btn-enviar{
   width:100%;color:#0b0a1a;border:none;padding:16px;border-radius:14px;font-size:16px;font-weight:800;
   font-family:inherit;cursor:pointer;letter-spacing:.01em;transition:transform .12s,box-shadow .2s,filter .2s;
   background:linear-gradient(135deg,var(--cyan) 0%,var(--violet-2) 100%);
   box-shadow:0 16px 36px -12px rgba(34,211,238,.5),0 8px 24px -10px rgba(168,85,247,.6);
+  min-height:52px;
 }
-.btn-enviar:hover{filter:brightness(1.08);box-shadow:0 20px 42px -12px rgba(34,211,238,.6),0 10px 28px -10px rgba(168,85,247,.7);}
 .btn-enviar:active{transform:translateY(1px);}
 .btn-enviar:disabled{background:rgba(255,255,255,.12);color:var(--muted);box-shadow:none;cursor:not-allowed;filter:none;}
-.success-msg{display:none;background:var(--ok-bg);border:1.5px solid var(--ok-line);border-radius:16px;padding:18px;text-align:center;color:var(--ok-ink);font-weight:700;}
-.categorias{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:4px;}
-.cat-btn{
-  border:1.5px solid var(--border);background:var(--field);border-radius:13px;padding:12px 8px;font-size:12.5px;
-  font-weight:600;font-family:inherit;cursor:pointer;text-align:center;transition:all .18s;color:var(--muted);
+.spinner{display:none;text-align:center;padding:8px 4px 0;color:var(--muted);font-size:13px;font-weight:600;}
+.spinner.show{display:block;}
+.success-panel{
+  display:none;background:var(--ok-bg);border:1.5px solid var(--ok-line);border-radius:18px;
+  padding:22px 18px;text-align:center;color:var(--ok-ink);animation:riseIn .45s ease both;
 }
-.cat-btn:hover{border-color:rgba(34,211,238,.5);background:var(--surface-2);color:var(--ink);}
-.cat-btn.active{border-color:var(--cyan);background:linear-gradient(135deg,rgba(139,92,246,.25),rgba(34,211,238,.20));color:#fff;box-shadow:0 8px 18px -8px rgba(34,211,238,.6);}
-.spinner{display:none;text-align:center;padding:10px;color:var(--muted);font-size:13px;font-weight:600;}
+.success-panel.show{display:block;}
+.success-panel .big{font-size:28px;margin-bottom:8px;}
+.success-panel h3{color:#e0f7fa;font-size:18px;margin-bottom:6px;}
+.success-panel p{font-size:13.5px;font-weight:500;color:#a5f3fc;line-height:1.45;margin-bottom:16px;}
+.toast{
+  position:fixed;left:16px;right:16px;bottom:calc(var(--cta-h) + var(--safe-b) + 8px);z-index:50;
+  max-width:448px;margin:0 auto;display:none;
+  background:rgba(60,16,24,.96);border:1px solid var(--err-line);color:var(--err-ink);
+  border-radius:14px;padding:12px 14px;font-size:13.5px;font-weight:600;line-height:1.35;
+  box-shadow:0 16px 40px -16px rgba(0,0,0,.7);animation:toastIn .25s ease both;
+}
+.toast.show{display:block;}
+.form-wrap.hide{display:none;}
+.cta-bar.hide{display:none;}
+body.success-mode{padding-bottom:calc(24px + var(--safe-b));}
 </style>
 </head>
 <body>
 
 <div class="header">
-  <h1>📍 Reclamos Vecinales</h1>
-  <p>San Pedro, Buenos Aires — Reportá problemas en tu barrio</p>
+  <div class="brand-chip">San Pedro · BA</div>
+  <h1>Reclamos Vecinales</h1>
+  <p>Reportá un problema del barrio en menos de 2 minutos</p>
+  <div class="steps" aria-hidden="true">
+    <span class="step-pill">1 Categoría</span>
+    <span class="step-pill">2 Foto</span>
+    <span class="step-pill">3 Ubicación</span>
+  </div>
 </div>
 
 <div class="container">
+  <div id="formWrap" class="form-wrap">
 
-  <div class="card">
-    <h2>📸 Categoría del problema</h2>
-    <div class="categorias">
-      <button class="cat-btn" onclick="selCat(this,'Pozo en la calle')">🕳️ Pozo en la calle</button>
-      <button class="cat-btn" onclick="selCat(this,'Cloaca desbordada')">💧 Cloaca desbordada</button>
-      <button class="cat-btn" onclick="selCat(this,'Falta de agua')">🚰 Falta de agua</button>
-      <button class="cat-btn" onclick="selCat(this,'Boca de tormenta')">🌧️ Boca de tormenta</button>
-      <button class="cat-btn" onclick="selCat(this,'Alumbrado')">💡 Alumbrado</button>
-      <button class="cat-btn" onclick="selCat(this,'Bacheo')">🛣️ Bacheo</button>
-      <button class="cat-btn" onclick="selCat(this,'Basura')">🗑️ Basura</button>
-      <button class="cat-btn" onclick="selCat(this,'Otro')">❓ Otro</button>
+    <div class="card" id="cardCat">
+      <div class="card-head">
+        <h2>Categoría del problema</h2>
+        <span class="req">Obligatorio</span>
+      </div>
+      <div class="categorias" role="group" aria-label="Categorías">
+        <button type="button" class="cat-btn" onclick="selCat(this,'Pozo en la calle')"><span class="ico">🕳️</span>Pozo en la calle</button>
+        <button type="button" class="cat-btn" onclick="selCat(this,'Cloaca desbordada')"><span class="ico">💧</span>Cloaca desbordada</button>
+        <button type="button" class="cat-btn" onclick="selCat(this,'Falta de agua')"><span class="ico">🚰</span>Falta de agua</button>
+        <button type="button" class="cat-btn" onclick="selCat(this,'Boca de tormenta')"><span class="ico">🌧️</span>Boca de tormenta</button>
+        <button type="button" class="cat-btn" onclick="selCat(this,'Alumbrado')"><span class="ico">💡</span>Alumbrado</button>
+        <button type="button" class="cat-btn" onclick="selCat(this,'Bacheo')"><span class="ico">🛣️</span>Bacheo</button>
+        <button type="button" class="cat-btn" onclick="selCat(this,'Basura')"><span class="ico">🗑️</span>Basura</button>
+        <button type="button" class="cat-btn" onclick="selCat(this,'Otro')"><span class="ico">❓</span>Otro</button>
+      </div>
+      <input type="hidden" id="categoria" value="">
     </div>
-    <input type="hidden" id="categoria" value="">
+
+    <div class="card" id="cardFoto">
+      <div class="card-head">
+        <h2>Foto del problema</h2>
+        <span class="req">Obligatorio</span>
+      </div>
+      <div class="foto-area" id="fotoArea" onclick="document.getElementById('fotoInput').click()" role="button" tabindex="0" aria-label="Tomar o elegir foto">
+        <div class="foto-ico">📷</div>
+        <p>Tocá para sacar una foto</p>
+        <span class="hint">También podés elegirla de la galería</span>
+        <input type="file" id="fotoInput" accept="image/*" capture="environment" style="display:none" onchange="mostrarFoto(this)">
+      </div>
+      <div class="foto-preview-wrap" id="fotoWrap">
+        <img id="fotoPreview" class="foto-preview" alt="Vista previa de la foto">
+        <div class="foto-actions">
+          <button type="button" class="btn-ghost" onclick="document.getElementById('fotoInput').click()">Cambiar foto</button>
+          <button type="button" class="btn-ghost" onclick="quitarFoto()">Quitar</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" id="cardUbic">
+      <div class="card-head">
+        <h2>Ubicación y descripción</h2>
+        <span class="req">Obligatorio</span>
+      </div>
+      <div class="form-group">
+        <label for="direccion">Dirección o referencia</label>
+        <input type="text" id="direccion" autocomplete="street-address" placeholder="Ej: Mitre y Belgrano, frente al kiosco" enterkeyhint="next">
+      </div>
+      <div class="form-group">
+        <label>GPS automático</label>
+        <div class="gps-row">
+          <div id="gpsBadge" class="gps-badge error" aria-live="polite">⏳ Detectando ubicación…</div>
+          <button type="button" class="btn-gps" id="btnGps" onclick="pedirGPS()">Reintentar</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="descripcion">Descripción del problema</label>
+        <textarea id="descripcion" rows="3" placeholder="Describí brevemente qué pasa y desde cuándo…" enterkeyhint="next"></textarea>
+      </div>
+      <div class="form-group">
+        <label for="nombre">Tu nombre <span class="opt" style="margin-left:6px;">Opcional</span></label>
+        <input type="text" id="nombre" autocomplete="name" placeholder="Ej: María González" enterkeyhint="next">
+      </div>
+      <div class="form-group">
+        <label for="celular">Tu celular <span class="opt" style="margin-left:6px;">Opcional</span></label>
+        <input type="tel" id="celular" inputmode="tel" autocomplete="tel" placeholder="Ej: 3329 123456" enterkeyhint="done">
+      </div>
+    </div>
   </div>
 
-  <div class="card">
-    <h2>📷 Foto del problema</h2>
-    <div class="foto-area" onclick="document.getElementById('fotoInput').click()">
-      <div style="font-size:40px;">📷</div>
-      <p>Tocá para sacar una foto o elegir de la galería</p>
-      <input type="file" id="fotoInput" accept="image/*" capture="environment" style="display:none" onchange="mostrarFoto(this)">
-    </div>
-    <img id="fotoPreview" class="foto-preview" alt="Vista previa">
+  <div class="success-panel" id="successMsg" role="status">
+    <div class="big">✅</div>
+    <h3>Reclamo enviado</h3>
+    <p>El concejal fue notificado. Gracias por ayudar a mejorar el barrio.</p>
+    <button type="button" class="btn-enviar" style="box-shadow:none;" onclick="nuevoReclamo()">Enviar otro reclamo</button>
   </div>
-
-  <div class="card">
-    <h2>📍 Ubicación y descripción</h2>
-    <div class="form-group">
-      <label>Dirección o referencia del lugar *</label>
-      <input type="text" id="direccion" placeholder="Ej: Mitre y Belgrano, frente al kiosco">
-    </div>
-    <div class="form-group">
-      <label>GPS automático</label>
-      <div id="gpsBadge" class="gps-badge error">⏳ Detectando ubicación...</div>
-    </div>
-    <div class="form-group">
-      <label>Descripción del problema *</label>
-      <textarea id="descripcion" rows="3" placeholder="Describí brevemente el problema..."></textarea>
-    </div>
-    <div class="form-group">
-      <label>Tu nombre (opcional)</label>
-      <input type="text" id="nombre" placeholder="Ej: María González">
-    </div>
-    <div class="form-group">
-      <label>Tu celular (opcional)</label>
-      <input type="text" id="celular" placeholder="Ej: 3329 123456">
-    </div>
-  </div>
-
-  <button class="btn-enviar" id="btnEnviar" onclick="enviarReclamo()">📤 Enviar Reclamo</button>
-  <div class="spinner" id="spinner">⏳ Enviando tu reclamo...</div>
-  <div class="success-msg" id="successMsg">
-    ✅ ¡Reclamo enviado con éxito!<br>
-    <span style="font-size:13px;font-weight:400;">El concejal fue notificado. Gracias por reportar.</span>
-  </div>
-
 </div>
+
+<div class="cta-bar" id="ctaBar">
+  <div class="cta-inner">
+    <button type="button" class="btn-enviar" id="btnEnviar" onclick="enviarReclamo()">Enviar reclamo</button>
+    <div class="spinner" id="spinner">Enviando tu reclamo…</div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="alert"></div>
 
 <script>
 let lat = null, lng = null, categoriaSeleccionada = '', fotoBase64 = '';
 
-// GPS
-navigator.geolocation.getCurrentPosition(
-  pos => {
-    lat = pos.coords.latitude.toFixed(6);
-    lng = pos.coords.longitude.toFixed(6);
-    document.getElementById('gpsBadge').className = 'gps-badge';
-    document.getElementById('gpsBadge').textContent = '✅ Ubicación detectada';
-  },
-  err => {
-    document.getElementById('gpsBadge').className = 'gps-badge error';
-    document.getElementById('gpsBadge').textContent = '❌ GPS no disponible — ingresá la dirección';
+function mostrarToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(mostrarToast._timer);
+  mostrarToast._timer = setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+function marcarInvalido(id) {
+  document.querySelectorAll('.card.is-invalid').forEach(c => c.classList.remove('is-invalid'));
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.add('is-invalid');
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function pedirGPS() {
+  const badge = document.getElementById('gpsBadge');
+  badge.className = 'gps-badge error';
+  badge.textContent = '⏳ Detectando ubicación…';
+  if (!navigator.geolocation) {
+    badge.textContent = '❌ GPS no disponible — ingresá la dirección';
+    return;
   }
-);
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      lat = pos.coords.latitude.toFixed(6);
+      lng = pos.coords.longitude.toFixed(6);
+      badge.className = 'gps-badge';
+      badge.textContent = '✅ Ubicación detectada';
+    },
+    () => {
+      lat = null; lng = null;
+      badge.className = 'gps-badge error';
+      badge.textContent = '❌ GPS no disponible — ingresá la dirección';
+    },
+    { enableHighAccuracy: true, timeout: 12000, maximumAge: 60000 }
+  );
+}
+
+pedirGPS();
 
 function selCat(btn, cat) {
   document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   categoriaSeleccionada = cat;
   document.getElementById('categoria').value = cat;
+  document.getElementById('cardCat').classList.remove('is-invalid');
 }
 
 function mostrarFoto(input) {
   const file = input.files[0];
   if (!file) return;
+  if (file.size > 8 * 1024 * 1024) {
+    mostrarToast('La foto es muy pesada. Probá con otra más liviana.');
+    input.value = '';
+    return;
+  }
   const reader = new FileReader();
   reader.onload = e => {
     document.getElementById('fotoPreview').src = e.target.result;
-    document.getElementById('fotoPreview').style.display = 'block';
+    document.getElementById('fotoWrap').classList.add('show');
+    document.getElementById('fotoArea').classList.add('has-photo');
     fotoBase64 = e.target.result.split(',')[1];
+    document.getElementById('cardFoto').classList.remove('is-invalid');
   };
   reader.readAsDataURL(file);
+}
+
+function quitarFoto() {
+  fotoBase64 = '';
+  document.getElementById('fotoInput').value = '';
+  document.getElementById('fotoPreview').src = '';
+  document.getElementById('fotoWrap').classList.remove('show');
+  document.getElementById('fotoArea').classList.remove('has-photo');
+}
+
+function nuevoReclamo() {
+  categoriaSeleccionada = '';
+  fotoBase64 = '';
+  lat = null; lng = null;
+  document.getElementById('categoria').value = '';
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('direccion').value = '';
+  document.getElementById('descripcion').value = '';
+  document.getElementById('nombre').value = '';
+  document.getElementById('celular').value = '';
+  quitarFoto();
+  document.getElementById('successMsg').classList.remove('show');
+  document.getElementById('formWrap').classList.remove('hide');
+  document.getElementById('ctaBar').classList.remove('hide');
+  document.body.classList.remove('success-mode');
+  document.getElementById('btnEnviar').disabled = false;
+  document.getElementById('spinner').classList.remove('show');
+  pedirGPS();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 async function enviarReclamo() {
   const direccion = document.getElementById('direccion').value.trim();
   const descripcion = document.getElementById('descripcion').value.trim();
 
-  if (!categoriaSeleccionada) { alert('Por favor seleccioná una categoría.'); return; }
-  if (!direccion) { alert('Por favor ingresá la dirección del problema.'); return; }
-  if (!descripcion) { alert('Por favor describí el problema.'); return; }
-  if (!fotoBase64) { alert('Por favor sacá una foto del problema.'); return; }
+  if (!categoriaSeleccionada) {
+    mostrarToast('Seleccioná una categoría del problema.');
+    marcarInvalido('cardCat');
+    return;
+  }
+  if (!fotoBase64) {
+    mostrarToast('Agregá una foto del problema.');
+    marcarInvalido('cardFoto');
+    return;
+  }
+  if (!direccion) {
+    mostrarToast('Ingresá la dirección o una referencia.');
+    marcarInvalido('cardUbic');
+    document.getElementById('direccion').focus();
+    return;
+  }
+  if (!descripcion) {
+    mostrarToast('Escribí una breve descripción.');
+    marcarInvalido('cardUbic');
+    document.getElementById('descripcion').focus();
+    return;
+  }
 
+  document.querySelectorAll('.card.is-invalid').forEach(c => c.classList.remove('is-invalid'));
   document.getElementById('btnEnviar').disabled = true;
-  document.getElementById('spinner').style.display = 'block';
+  document.getElementById('spinner').classList.add('show');
 
   const ahora = new Date();
   const datos = {
@@ -253,16 +464,28 @@ async function enviarReclamo() {
     });
     const result = await res.json();
     if (result.success) {
-      document.getElementById('spinner').style.display = 'none';
-      document.getElementById('successMsg').style.display = 'block';
-      document.getElementById('btnEnviar').style.display = 'none';
+      document.getElementById('spinner').classList.remove('show');
+      document.getElementById('formWrap').classList.add('hide');
+      document.getElementById('ctaBar').classList.add('hide');
+      document.body.classList.add('success-mode');
+      document.getElementById('successMsg').classList.add('show');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      throw new Error('fail');
     }
-  } catch(e) {
-    document.getElementById('spinner').style.display = 'none';
+  } catch (e) {
+    document.getElementById('spinner').classList.remove('show');
     document.getElementById('btnEnviar').disabled = false;
-    alert('Error al enviar. Verificá tu conexión e intentá de nuevo.');
+    mostrarToast('No se pudo enviar. Revisá tu conexión e intentá de nuevo.');
   }
 }
+
+document.getElementById('fotoArea').addEventListener('keydown', e => {
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault();
+    document.getElementById('fotoInput').click();
+  }
+});
 </script>
 </body>
 </html>
